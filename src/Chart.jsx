@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 import axios from "axios";
@@ -41,21 +41,47 @@ const options = {
   series: [
     {
       name: "Line 1",
-      data: [1, 2, 1, 4, 3, 6, 8],
+      data: [],
     },
     {
       name: "Line 2",
-      data: [2, 4, 5, 2, 7, 1, 3],
+      data: [],
     },
   ],
+  accessibility: {
+    enabled: false,
+  },
 };
 
 const Chart = () => {
+  const [chartOptions, setChartOptions] = useState(options);
+
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/api/users");
-        console.log("response", response.data);
+        const response = await axios.get("/api/users");
+
+        const userCount1 = response.data
+          .filter((user) => user.lineId === 1)
+          .map((user) => user.userCount);
+
+        const userCount2 = response.data
+          .filter((user) => user.lineId === 2)
+          .map((user) => user.userCount);
+
+        setChartOptions((prevOptions) => ({
+          ...prevOptions,
+          series: [
+            {
+              name: "Line 1",
+              data: userCount1, // API 응답 값을 사용하여 첫 번째 series의 data를 설정합니다.
+            },
+            {
+              name: "Line 2",
+              data: userCount2, // API 응답 값을 사용하여 두 번째 series의 data를 설정합니다.
+            },
+          ],
+        }));
       } catch (e) {
         console.log(e);
       }
@@ -63,7 +89,7 @@ const Chart = () => {
     fetchUsers();
   }, []);
 
-  return <HighchartsReact highcharts={Highcharts} options={options} />;
+  return <HighchartsReact highcharts={Highcharts} options={chartOptions} />;
 };
 
 export default Chart;
