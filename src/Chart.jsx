@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
+import axios from "axios";
 
 const options = {
   colors: ["#FCB9AA", "#55CBCD"], // 차트 색상 변경
@@ -49,8 +50,20 @@ const options = {
   ],
 };
 
-const Chart = () => (
-  <HighchartsReact highcharts={Highcharts} options={options} />
-);
+const Chart = () => {
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await axios.get("http://localhost:3000/api/users");
+        console.log("response", response.data);
+      } catch (e) {
+        console.log(e);
+      }
+    };
+    fetchUsers();
+  }, []);
+
+  return <HighchartsReact highcharts={Highcharts} options={options} />;
+};
 
 export default Chart;
